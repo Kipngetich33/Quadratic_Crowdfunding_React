@@ -208,7 +208,6 @@ class ClassEvent extends Component {
                     <label>School Project Got :</label> <input value={this.state.schoolProjectFunds}/> <br/>
                     <label>Road Project Got :</label> <input value={this.state.roadProjectFunds}/> <br/>
                 </div>
-                
             </div>
         )
     }
