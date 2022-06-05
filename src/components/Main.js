@@ -119,6 +119,12 @@ class ClassEvent extends Component {
         this.setState({instructionHeader:"How much would you want to contribute?"})
     }
 
+    // createOrAttachToContract = () => {
+    //     this.setState({enterExistingAccount:'none'})
+    //     this.setState({contributionSection:true})
+    //     this.setState({instructionHeader:"How much would you want to contribute?"})
+    // }
+
     confirmContribution = () => {
         this.setState({contributionSection:'none'})
         this.setState({projectVotingSection:true})
@@ -143,38 +149,48 @@ class ClassEvent extends Component {
                 <h4 >{this.state.instructionHeader}</h4>
                 {/* first step give username/project name */}
                 <input style={{display:this.state.startOrAttachToContract}} id="userOrProjectName" type="text" placeholder="Enter User or Project Name" onChange={this.getInputValue}/><br/><br/>
-                <button style={{display:this.state.startOrAttachToContract}} onClick={this.startOrAttachToContract}>
+                <button style={{display:this.state.startOrAttachToContract}} onClick={this.startOrAttachToContract} type="button" className="btn btn-primary">
                     Confirm
                 </button>
 
                 {/* second step choose whether to create or give existing account */}
-                <button id="createAccount" onClick={this.createNewAccount} style={{display:this.state.showAccountDefinition}}>
+                <button id="createAccount" onClick={this.createNewAccount} style={{display:this.state.showAccountDefinition}} type="button" className="btn btn-primary">
                     Create New Account
                 </button> 
-                <button id="createAccount" onClick={this.enterExistingAccount}  style={{display:this.state.showAccountDefinition}}>
+                <button id="createAccount" onClick={this.enterExistingAccount}  style={{display:this.state.showAccountDefinition}} type="button" className="btn btn-primary">
                     Enter Existing Account
                 </button> 
 
                 {/* step 3 enter existing account account */}
                 <input id="existingAccount" placeholder="Enter existing account" style={{display:this.state.enterExistingAccount}}/> <br/><br/> 
-                <button id="createAccount" onClick={this.verifyExistingAccount}  style={{display:this.state.enterExistingAccount}}>
+                <button id="createAccount" onClick={this.verifyExistingAccount}  style={{display:this.state.enterExistingAccount}} type="button" className="btn btn-primary">
                     Confirm
                 </button>
 
-                {/* step 4 contribution */}
+                {/* step 4 create or attach to an existing contract */}
+                {/* <div  style={{display:this.state.projectVotingSection}}>
+                    <button id="createAccount" onClick={this.voteForSchool} type="button" className="btn btn-primary">
+                        Initiate
+                    </button>
+                    <button id="createAccount" onClick={this.voteForRoad} type="button" className="btn btn-primary">
+                        Attach
+                    </button>
+                </div> */}
+
+                {/* step 5 contribution */}
                 <input id="existingAccount" placeholder="Amount" style={{display:this.state.contributionSection}} type="number"/> <br/><br/> 
-                <button id="createAccount" onClick={this.confirmContribution}  style={{display:this.state.contributionSection}}>
+                <button id="createAccount" onClick={this.confirmContribution}  style={{display:this.state.contributionSection}} type="button" className="btn btn-primary">
                     Confirm
                 </button>
 
-                {/* step 4 project voting section */}
+                {/* step 6 project voting section */}
                 <div  style={{display:this.state.projectVotingSection}}>
                     <label>1. School Project :</label>
-                    <button id="createAccount" onClick={this.voteForSchool}>
+                    <button id="createAccount" onClick={this.voteForSchool} type="button" className="btn btn-primary">
                         Vote
                     </button> <br/><br/>
                     <label>2. Road Project :</label>
-                    <button id="createAccount" onClick={this.voteForRoad}>
+                    <button id="createAccount" onClick={this.voteForRoad} type="button" className="btn btn-primary">
                         Vote
                     </button>
                 </div>

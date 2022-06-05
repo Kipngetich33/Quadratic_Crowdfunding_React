@@ -286,6 +286,12 @@ export const main = Reach.App(()=> {
 
     //end of calculate project voting power ************************************************************************************************************************
 
+    // transfer all tokens back to its owners for now to allow code to compile
+    // ToDo : Find a way to send funds to the correct project
+    // transfer(donationAmtKip).to(Kip)
+    // transfer(donationAmtPrince).to(Prince)
+    // transfer(donationAmtJazz).to(Jazz)
+
     //there will be a very small balance remaining use it to remunarate the person who deployed the
     //contract
     const remainingFunds = balance() - (schoolProjectFunds + roadProjectFunds)
