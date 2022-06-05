@@ -27,9 +27,12 @@ class ClassEvent extends Component {
             startOrAttachToContract:true,
             showAccountDefinition:'none',
             enterExistingAccount:'none',
+            createAttachContractSection:'none',
             contributionSection:'none',
             projectVotingSection:'none',
-            fundsDistributionAndBalance:'none'
+            fundsDistributionAndBalance:'none',
+            contractDetailInputAndConfirmation:'none',
+            contractDetails:null
         };
     }
 
@@ -102,10 +105,16 @@ class ClassEvent extends Component {
         this.state.userOrProjectName = userValue
     };
 
+    getInputValue2 = (event)=>{
+        // get value enter by user here
+        const userValue = event.target.value;
+        this.state.contractDetails = userValue
+    };
+
     createNewAccount = () => {
         this.setState({showAccountDefinition:'none'})
-        this.setState({contributionSection:true})
-        this.setState({instructionHeader:"How much would you want to contribute?"})
+        this.setState({createAttachContractSection:true})
+        this.setState({instructionHeader:"Do you want to create or attach to an existing contract?"})
     }
 
     enterExistingAccount = () => {
@@ -115,15 +124,29 @@ class ClassEvent extends Component {
 
     verifyExistingAccount = () => {
         this.setState({enterExistingAccount:'none'})
-        this.setState({contributionSection:true})
-        this.setState({instructionHeader:"How much would you want to contribute?"})
+        this.setState({createAttachContractSection:true})
+        this.setState({instructionHeader:"Do you want to create or attach to an existing contract?"})
     }
 
-    // createOrAttachToContract = () => {
-    //     this.setState({enterExistingAccount:'none'})
-    //     this.setState({contributionSection:true})
-    //     this.setState({instructionHeader:"How much would you want to contribute?"})
-    // }
+    initiateNewContract = () => {
+        this.setState({contractDetailInputAndConfirmation:true})
+    }
+
+    attachToExistingContract = () => {
+        this.setState({contractDetailInputAndConfirmation:true})
+    }
+
+    confirmContractDetails = () => {
+        //check the contract details is defined in the state
+        if(this.state.contractDetails){
+            this.setState({createAttachContractSection:'none'})
+            this.setState({contributionSection:true})
+            this.setState({instructionHeader:"How much would you want to contribute?"})
+        }else{
+            alert("The contract detail is undefined")
+        }
+        
+    }
 
     confirmContribution = () => {
         this.setState({contributionSection:'none'})
@@ -168,14 +191,19 @@ class ClassEvent extends Component {
                 </button>
 
                 {/* step 4 create or attach to an existing contract */}
-                {/* <div  style={{display:this.state.projectVotingSection}}>
-                    <button id="createAccount" onClick={this.voteForSchool} type="button" className="btn btn-primary">
+                <div  style={{display:this.state.createAttachContractSection}}>
+                    <button onClick={this.initiateNewContract} type="button" className="btn btn-primary">
                         Initiate
                     </button>
-                    <button id="createAccount" onClick={this.voteForRoad} type="button" className="btn btn-primary">
+                    <button onClick={this.attachToExistingContract} type="button" className="btn btn-primary">
                         Attach
                     </button>
-                </div> */}
+                    <br/><br/>
+                    <input style={{display:this.state.contractDetailInputAndConfirmation}} id="contractDetailInput" type="text" placeholder="Enter contract detail" onChange={this.getInputValue2}/>
+                    <button style={{display:this.state.contractDetailInputAndConfirmation}} onClick={this.confirmContractDetails} type="button" className="btn btn-primary">
+                        Confirm
+                    </button>
+                </div>
 
                 {/* step 5 contribution */}
                 <input id="existingAccount" placeholder="Amount" style={{display:this.state.contributionSection}} type="number"/> <br/><br/> 
@@ -198,7 +226,7 @@ class ClassEvent extends Component {
                 {/* Funds distribution section and account balance*/}
                 <div style={{display:this.state.fundsDistributionAndBalance}}>
                     <h4>Your Details</h4>
-                    <label>You Contributed :</label> <input value= {this.state.donationAmount}/> <br/>
+                    {/* <label>You Contributed :</label> <input value= {this.state.donationAmount}/> <br/>
                     <label>You Account Balance is :</label> <input value= {this.state.accountBalance} /> <br/>
                     <label>You Voted For :</label> <input value={this.state.projectVotedFor}/> <br/>
                     <h4>Project Funds Share Ration :</h4> <br/>
@@ -206,7 +234,7 @@ class ClassEvent extends Component {
                     <label>Road Project</label><input value={this.state.roadProjectShareRation}/> <br/>
                     <label>Total Funds Contributed : </label> <input value={this.state.totalFundsContributed}/> <br/>
                     <label>School Project Got :</label> <input value={this.state.schoolProjectFunds}/> <br/>
-                    <label>Road Project Got :</label> <input value={this.state.roadProjectFunds}/> <br/>
+                    <label>Road Project Got :</label> <input value={this.state.roadProjectFunds}/> <br/> */}
                 </div>
             </div>
         )
