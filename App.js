@@ -1,12 +1,12 @@
-import logo from './logo.svg';
-import './App.css';
-import Hello from './components/Hello'
-import Message from './components/Message'
-import Profile from './components/Profile'
-import Counter from './components/Counter'
-import Resume from './components/Resume'
-import FunctionEvent from './components/FunctionEvent'
-import Main from './components/Main'
+import logo from './src/logo.svg';
+import './src/App.css';
+import Hello from './src/components/Hello'
+import Message from './src/components/Message'
+import Profile from './src/components/Profile'
+import Counter from './src/components/Counter'
+import Resume from './src/components/Resume'
+import FunctionEvent from './src/components/FunctionEvent'
+import Main from './src/components/Main'
 
 
 //set original props
