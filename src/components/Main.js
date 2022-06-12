@@ -15,6 +15,10 @@ const userParts = {
     'Road':backend.Road
 }
 
+interact.logFromBackend = async (valueFromBackend) => {
+    console.log(`The value of backend ${valueFromBackend}`);
+}
+
 class ClassEvent extends Component {
     //create state for Component
     constructor(){
@@ -156,6 +160,8 @@ class ClassEvent extends Component {
 
     initiateNewContract = async () => {
         ctc = await this.state.userAccount.contract(backend)
+        console.log("Contract")
+        console.log(ctc)
         this.setState({contractDetailInputAndConfirmation:true})
         //now set state of contract as Pending
         this.setState({contractDetailsJson:"Pending"}) 
@@ -212,8 +218,12 @@ class ClassEvent extends Component {
     completeTransaction = () => {
         interact.donationAmt = this.state.donationAmount
         interact.projectVote = this.state.projectVoteValue
+        interact.informUserOfFundsShare = this.informUserOfFundsShare
         let userBackend = userParts[this.state.userOrProjectName]
-        userBackend(ctc, interact)
+
+        userBackend(ctc, interact).then(() => {
+            console.log("backend resolved")
+        })
 
         //show the contract details
         ctc.getInfo().then((contractDetails) => {
@@ -222,7 +232,19 @@ class ClassEvent extends Component {
             let accountBalance = this.getBalance(this.state.userAccount).then((balance) => {
                 this.setState({accountBalance:balance})
             })
+
+            // console.log("funcs share below")
+            // console.log(interact.informUserOfFundsShare().then(() => {
+            //     console.log("fullfilled")
+            // }))
         })
+    }
+
+    informUserOfFundsShare = async (totalFunds,schoolProjectFunds,roadProjectFunds) => {
+        console.log("*********************************************Results***********************************************************");
+        console.log(`Total Funds Contributed: ${this.parseAtomicToStandard(totalFunds)}`);
+        console.log(`School Funds: ${this.parseAtomicToStandard(schoolProjectFunds)}`);
+        console.log(`Road Funds: ${this.parseAtomicToStandard(roadProjectFunds)}`);
     }
 
     render () {

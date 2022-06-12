@@ -62,10 +62,11 @@ export const main = Reach.App(()=> {
     //Kip's step
     Kip.only(()=> {
         const donationAmtKip = declassify(interact.donationAmt)
+        // interact.logFromBackend(donationAmtKip)
+
     })
     Kip.publish(donationAmtKip)
         .pay(donationAmtKip)
-        // .timeout(relativeTime(5), () => closeTo(Kip,() => {}))
     commit();
 
 
@@ -88,18 +89,6 @@ export const main = Reach.App(()=> {
         .pay(donationAmtPrince)
         // .timeout(relativeTime(5), () => closeTo(Prince,() => {}))
     commit();
-
-    //add publish for the project Participant so that they are bound to an adresss and can recieve funds
-    // School.only(() => {
-
-    // })
-    // School.publish()
-    // commit();
-    // Road.only(() => {
-        
-    // })
-    // Road.publish()
-    // commit();
 
     //Jazz's step
     Jazz.only(()=> {
@@ -131,7 +120,7 @@ export const main = Reach.App(()=> {
         commit()
          //Log information to all participants
         each([Kip,Prince,Jazz],() => {
-            // interact.logFromBackend(contractDetails.timeOut)
+            interact.logFromBackend(9)
             // interact.log()
         })
        
