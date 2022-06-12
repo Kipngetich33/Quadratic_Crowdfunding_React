@@ -11,13 +11,20 @@ const userParts = {
     'Prince':backend.Prince,
     'Jazz':backend.Jazz,
     'Kip':backend.Kip,
-    'School':backend.School,
-    'Road':backend.Road
+    // 'School':backend.School,
+    // 'Road':backend.Road
 }
 
 interact.logFromBackend = async (valueFromBackend) => {
     console.log(`The value of backend ${valueFromBackend}`);
 }
+
+// interact.informUserOfFundsShare = async (totalFunds,schoolProjectFunds,roadProjectFunds) => {
+//     console.log("*********************************************Results***********************************************************");
+//     console.log(`Total Funds Contributed: ${this.parseAtomicToStandard(totalFunds)}`);
+//     console.log(`School Funds: ${this.parseAtomicToStandard(schoolProjectFunds)}`);
+//     console.log(`Road Funds: ${this.parseAtomicToStandard(roadProjectFunds)}`);
+// }
 
 class ClassEvent extends Component {
     //create state for Component
@@ -37,6 +44,7 @@ class ClassEvent extends Component {
             schoolProjectFunds:0,
             roadProjectFunds:0,
             userRole:null,
+            contractRole:null,
             userOrProjectName:true,
             instructionHeader:'Enter your Username or Project Name',
             // show/hide state properties 
@@ -109,8 +117,7 @@ class ClassEvent extends Component {
 
     getInputValue2 = (event)=>{
         // get value enter by user here
-        const userValue = event.target.value;
-        this.state.contractDetailsJson = userValue
+        this.state.contractDetailsJson = event.target.value;
     };
 
     getInputValue3 = (event)=>{
@@ -159,6 +166,8 @@ class ClassEvent extends Component {
     }
 
     initiateNewContract = async () => {
+        //mark current user as contract initializer
+        this.setState({contractRole:"Initiator"})
         ctc = await this.state.userAccount.contract(backend)
         console.log("Contract")
         console.log(ctc)
@@ -168,15 +177,26 @@ class ClassEvent extends Component {
     }
 
     attachToExistingContract = () => {
+        //mark current user as contract attacher
+        this.setState({contractRole:"Attacher"})
         this.setState({contractDetailInputAndConfirmation:true})
     }
 
     confirmContractDetails = () => {
         //check the contract details is defined in the state
         if(this.state.contractDetailsJson){
-            this.setState({createAttachContractSection:'none'})
-            this.setState({contributionSection:true})
-            this.setState({instructionHeader:"How much would you want to contribute?"})
+            if(this.state.contractDetailsJson == "Pending"){
+                console.log("this is a new contract")
+                this.setState({createAttachContractSection:'none'})
+                this.setState({contributionSection:true})
+                this.setState({instructionHeader:"How much would you want to contribute?"})
+            }else{
+                //this user wants to attach to an existing contract
+                ctc = this.state.userAccount.contract(backend,this.state.contractDetailsJson)
+                this.setState({createAttachContractSection:'none'})
+                this.setState({contributionSection:true})
+                this.setState({instructionHeader:"How much would you want to contribute?"})
+            }
         }else{
             alert("The contract detail is undefined")
         }
@@ -225,26 +245,28 @@ class ClassEvent extends Component {
             console.log("backend resolved")
         })
 
-        //show the contract details
-        ctc.getInfo().then((contractDetails) => {
-            this.setState({contractDetailsJson:contractDetails._hex});
+        if(this.state.contractRole == "Initiator" ? true:false){
+            //show the contract details
+            ctc.getInfo().then((contractDetails) => {
+                // this.setState({contractDetailsJson:JSON.stringify(contractDetails)});
+                this.setState({contractDetailsJson:contractDetails._hex});
+                console.log({contractDetailsJson:JSON.stringify(contractDetails)})
+                //get user account balance
+                let accountBalance = this.getBalance(this.state.userAccount).then((balance) => {
+                    this.setState({accountBalance:balance})
+                })
+
+                // console.log("funcs share below")
+                // console.log(interact.informUserOfFundsShare().then(() => {
+                //     console.log("fullfilled")
+                // }))
+            })
+        }else{
             //get user account balance
             let accountBalance = this.getBalance(this.state.userAccount).then((balance) => {
                 this.setState({accountBalance:balance})
             })
-
-            // console.log("funcs share below")
-            // console.log(interact.informUserOfFundsShare().then(() => {
-            //     console.log("fullfilled")
-            // }))
-        })
-    }
-
-    informUserOfFundsShare = async (totalFunds,schoolProjectFunds,roadProjectFunds) => {
-        console.log("*********************************************Results***********************************************************");
-        console.log(`Total Funds Contributed: ${this.parseAtomicToStandard(totalFunds)}`);
-        console.log(`School Funds: ${this.parseAtomicToStandard(schoolProjectFunds)}`);
-        console.log(`Road Funds: ${this.parseAtomicToStandard(roadProjectFunds)}`);
+        }
     }
 
     render () {
@@ -281,7 +303,14 @@ class ClassEvent extends Component {
                         Attach
                     </button>
                     <br/><br/>
-                    <input style={{display:this.state.contractDetailInputAndConfirmation}} id="contractDetailInput" type="text" placeholder="Enter contract detail" value={this.state.contractDetailsJson} onChange={this.getInputValue2}/>
+                    <input 
+                        style={{ display:this.state.contractRole == "Initiator" ? true:"none" }} 
+                        id="contractDetailInput" placeholder="Enter contract detail" value={this.state.contractDetailsJson} onChange={this.getInputValue2} 
+                    />
+                    <input 
+                        style={{display:this.state.contractRole == "Attacher" ? true:"none" }} 
+                        placeholder="Enter contract detail" onChange={this.getInputValue2}
+                    />
                     <button style={{display:this.state.contractDetailInputAndConfirmation}} onClick={this.confirmContractDetails} type="button" className="btn btn-primary">
                         Confirm
                     </button>

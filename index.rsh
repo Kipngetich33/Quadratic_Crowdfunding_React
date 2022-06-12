@@ -36,12 +36,12 @@ export const main = Reach.App(()=> {
 
     //create Participant interfaces for the two projects if.e Road and school,these two 
     //accounts are where the funds will be transfered
-    const School = Participant('School', {
-        ...User
-    })
-    const Road = Participant('Road', {
-        ...User
-    })
+    // const School = Participant('School', {
+    //     ...User
+    // })
+    // const Road = Participant('Road', {
+    //     ...User
+    // })
 
     //The other three partipants are actual application users
     const Kip = Participant('Kip', {
@@ -70,16 +70,16 @@ export const main = Reach.App(()=> {
     commit();
 
 
-    School.only(() => {
-    })
-    School.publish()
-    commit();
+    // School.only(() => {
+    // })
+    // School.publish()
+    // commit();
 
-    Road.only(() => {
+    // Road.only(() => {
         
-    })
-    Road.publish()
-    commit();
+    // })
+    // Road.publish()
+    // commit();
 
     //Prince Step
     Prince.only(()=> {
@@ -279,8 +279,8 @@ export const main = Reach.App(()=> {
     //contract
     const remainingFunds = balance() - (schoolProjectFunds + roadProjectFunds)
     //now transfer the amount to the correct project
-    transfer(schoolProjectFunds).to(School)
-    transfer(roadProjectFunds).to(Road)
+    transfer(schoolProjectFunds).to(Prince)
+    transfer(roadProjectFunds).to(Jazz)
     transfer(remainingFunds).to(Kip)
 
     //commit all the changes above
