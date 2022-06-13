@@ -6,7 +6,7 @@ import * as backend from '../../build/index.main.mjs';
 // const stdlib = loadStdlib(process.env);
 const stdlib = loadStdlib("ALGO");
 let ctc = null;
-const interact = { ...stdlib.hasRandom,...stdlib.hasConsoleLogger }
+const interact = { ...stdlib.hasConsoleLogger }
 const userParts = {
     'Prince':backend.Prince,
     'Jazz':backend.Jazz,
@@ -19,12 +19,16 @@ interact.logFromBackend = async (valueFromBackend) => {
     console.log(`The value of backend ${valueFromBackend}`);
 }
 
-// interact.informUserOfFundsShare = async (totalFunds,schoolProjectFunds,roadProjectFunds) => {
-//     console.log("*********************************************Results***********************************************************");
-//     console.log(`Total Funds Contributed: ${this.parseAtomicToStandard(totalFunds)}`);
-//     console.log(`School Funds: ${this.parseAtomicToStandard(schoolProjectFunds)}`);
-//     console.log(`Road Funds: ${this.parseAtomicToStandard(roadProjectFunds)}`);
-// }
+interact.informUserOfFundsShare = async (totalFunds,schoolProjectFunds,roadProjectFunds) => {
+    console.log("*********************************************Results***********************************************************");
+    // console.log(totalFunds)
+    // console.log(schoolProjectFunds)
+    // console.log(roadProjectFunds)
+
+    console.log(totalFunds);
+    console.log(schoolProjectFunds);
+    console.log(roadProjectFunds);
+}
 
 class ClassEvent extends Component {
     //create state for Component
@@ -222,7 +226,7 @@ class ClassEvent extends Component {
         this.setState({fundsDistributionAndBalance:true})
         this.setState({instructionHeader:"Thanks for Contributing"})
         //call the transaction comletion function
-        this.completeTransaction()
+        this.completeTransaction(1)
     }
 
     voteForRoad = () => {
@@ -232,18 +236,22 @@ class ClassEvent extends Component {
         this.setState({fundsDistributionAndBalance:true})
         this.setState({instructionHeader:"Thanks for Contributing"})
         //call the transaction comletion function
-        this.completeTransaction()
+        this.completeTransaction(2)
     }
 
-    completeTransaction = () => {
+    completeTransaction = (projectVoteValue) => {
+        console.log("completing transation")
         interact.donationAmt = this.state.donationAmount
-        interact.projectVote = this.state.projectVoteValue
-        interact.informUserOfFundsShare = this.informUserOfFundsShare
+        interact.projectVote = projectVoteValue
         let userBackend = userParts[this.state.userOrProjectName]
+        console.log("project vote")
+        console.log(projectVoteValue)
 
-        userBackend(ctc, interact).then(() => {
-            console.log("backend resolved")
-        })
+        userBackend(ctc, interact)
+        
+        // .then(() => {
+        //     console.log("backend resolved")
+        // })
 
         if(this.state.contractRole == "Initiator" ? true:false){
             //show the contract details
@@ -262,10 +270,11 @@ class ClassEvent extends Component {
                 // }))
             })
         }else{
+            console.log("attacher finishing")
             //get user account balance
-            let accountBalance = this.getBalance(this.state.userAccount).then((balance) => {
-                this.setState({accountBalance:balance})
-            })
+            // let accountBalance = this.getBalance(this.state.userAccount).then((balance) => {
+            //     this.setState({accountBalance:balance})
+            // })
         }
     }
 
