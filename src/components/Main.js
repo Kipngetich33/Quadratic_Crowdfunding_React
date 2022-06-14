@@ -15,27 +15,38 @@ const userParts = {
     // 'Road':backend.Road
 }
 
-interact.logFromBackend = async (valueFromBackend) => {
-    console.log(`The value of backend ${valueFromBackend}`);
-}
+
 
 interact.informUserOfFundsShare = async (totalFunds,schoolProjectFunds,roadProjectFunds) => {
     console.log("*********************************************Results***********************************************************");
-    // console.log(totalFunds)
-    // console.log(schoolProjectFunds)
-    // console.log(roadProjectFunds)
-
     console.log(totalFunds);
     console.log(schoolProjectFunds);
     console.log(roadProjectFunds);
+
+    // this.setState({totalFundsContributed:totalFunds})
+    // this.setState({schoolProjectFunds:schoolProjectFunds})
+    // this.setState({roadProjectShareRation:roadProjectFunds})
+
+    // console.log(ClassEvent.test("Test"))
 }
+
+// const myFunction = async () => {
+//     console.log("running")
+//     interact.logFromBackend = async (valueFromBackend) => {
+//         console.log(`The value of backend ${valueFromBackend}`);
+//     }
+// }
+
+// interact.seeOutcome = async (totalFunds) {
+//     return totalFunds
+// }
 
 class ClassEvent extends Component {
     //create state for Component
     constructor(){
         super();
         this.state = {
-            testState:'Test',
+            air:"",
             userOrProjectName:null,
             contractId:null,
             donationAmount:0,
@@ -44,7 +55,6 @@ class ClassEvent extends Component {
             schoolProjectShareRation:0,
             roadProjectShareRation:0,
             totalFundsContributed:0,
-            contractStartedOrAttached: false,
             schoolProjectFunds:0,
             roadProjectFunds:0,
             userRole:null,
@@ -66,12 +76,17 @@ class ClassEvent extends Component {
             contractDetailsJson:'',
             userAccount:null,
             userAccountaddr:'',
-            projectVoteValue:0
+            projectVoteValue:0,
+            interact:interact
         };
+        this.test = (x) => {
+            console.log(`The function is ${x}`)
+        }
     }
 
+
     // helper functions section
-    currencyFormater = (x) => stdlib.formatCurrency(x,4) // format to 4 decimal places
+    currencyFormater = (x) => stdlib.formatCurrency(x,10) // format to 4 decimal places
     getBalance = async (userAccount) => this.currencyFormater(await stdlib.balanceOf(userAccount))
     parseAtomicToStandard = (atomicUnits) => atomicUnits/1000000 // function that converts atomice units to standard
     //function that get the balance of funds payed to the contract
@@ -113,6 +128,10 @@ class ClassEvent extends Component {
 
     }
 
+    testFunction = (x) => {
+        console.log("test function")
+    }
+
     getInputValue = (event)=>{
         // get value enter by user here
         const userValue = event.target.value;
@@ -129,6 +148,13 @@ class ClassEvent extends Component {
         const userValue = event.target.value;
         this.state.userAccountaddr = userValue
     };
+
+    totalFundsContributedOnchange = (event) => {
+        // get value enter by user here
+        const userValue = event.target.value;
+        this.state.totalFundsContributed = userValue
+        
+    }
 
     //function that binds the contribution amount with donationAmount in state
     getInputValueContribution = (event) =>{
@@ -173,8 +199,6 @@ class ClassEvent extends Component {
         //mark current user as contract initializer
         this.setState({contractRole:"Initiator"})
         ctc = await this.state.userAccount.contract(backend)
-        console.log("Contract")
-        console.log(ctc)
         this.setState({contractDetailInputAndConfirmation:true})
         //now set state of contract as Pending
         this.setState({contractDetailsJson:"Pending"}) 
@@ -190,7 +214,6 @@ class ClassEvent extends Component {
         //check the contract details is defined in the state
         if(this.state.contractDetailsJson){
             if(this.state.contractDetailsJson == "Pending"){
-                console.log("this is a new contract")
                 this.setState({createAttachContractSection:'none'})
                 this.setState({contributionSection:true})
                 this.setState({instructionHeader:"How much would you want to contribute?"})
@@ -240,42 +263,40 @@ class ClassEvent extends Component {
     }
 
     completeTransaction = (projectVoteValue) => {
-        console.log("completing transation")
         interact.donationAmt = this.state.donationAmount
         interact.projectVote = projectVoteValue
+        interact.seeOutcome = (outcome) => {
+            console.log("finally doine")
+            let sch = parseInt(outcome._hex, 16)
+            console.log(sch)
+            this.setState({totalFundsContributed:sch})
+        }
         let userBackend = userParts[this.state.userOrProjectName]
-        console.log("project vote")
-        console.log(projectVoteValue)
 
+        //pass contract and interact to current user's backend
         userBackend(ctc, interact)
-        
-        // .then(() => {
-        //     console.log("backend resolved")
-        // })
 
+        //check the role of the current user
         if(this.state.contractRole == "Initiator" ? true:false){
             //show the contract details
             ctc.getInfo().then((contractDetails) => {
                 // this.setState({contractDetailsJson:JSON.stringify(contractDetails)});
                 this.setState({contractDetailsJson:contractDetails._hex});
-                console.log({contractDetailsJson:JSON.stringify(contractDetails)})
-                //get user account balance
-                let accountBalance = this.getBalance(this.state.userAccount).then((balance) => {
-                    this.setState({accountBalance:balance})
-                })
 
-                // console.log("funcs share below")
-                // console.log(interact.informUserOfFundsShare().then(() => {
-                //     console.log("fullfilled")
-                // }))
+                // interact.getBalanceContract().then((cBalcne) => {
+                //     console.log("contract balance")
+                //     console.log(cBalcne)
+                // })
+
+                // //get user account balance
+                // let accountBalance = this.getBalance(this.state.userAccount).then((balance) => {
+                //     // this.setState({accountBalance:balance})
+                // })
             })
         }else{
-            console.log("attacher finishing")
-            //get user account balance
-            // let accountBalance = this.getBalance(this.state.userAccount).then((balance) => {
-            //     this.setState({accountBalance:balance})
-            // })
+           //this is the attacher section
         }
+
     }
 
     render () {
@@ -416,9 +437,9 @@ class ClassEvent extends Component {
                                 Total Funds Contributed
                             </span>
                             <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
-                                value={this.state.schoolProjectShareRation} 
-                                onChange={this.getInputValue2
-                                }
+                                value={this.state.totalFundsContributed} 
+
+                                onChange={this.totalFundsContributedOnchange}
                             />
                         </div>
 
@@ -427,9 +448,8 @@ class ClassEvent extends Component {
                                 School Project Funds
                             </span>
                             <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
-                                value={this.state.schoolProjectShareRation} 
-                                onChange={this.getInputValue2
-                                }
+                                value={this.state.schoolProjectFunds} 
+                                onChange={this.getInputValue2}
                             />
                         </div>
 
@@ -438,57 +458,11 @@ class ClassEvent extends Component {
                                 Road Project Funds
                             </span>
                             <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
-                                value={this.state.schoolProjectShareRation} 
-                                onChange={this.getInputValue2
-                                }
+                                value={this.state.roadProjectFunds} 
+                                onChange={this.getInputValue2}
                             />
                         </div>
 
-                        {/* 
-                    <label>School Project</label><input value={this.state.schoolProjectShareRation}/> <br/>
-                    <label>Road Project</label><input value={this.state.roadProjectShareRation}/> <br/>
-                    <label>Total Funds Contributed : </label> <input value={this.state.totalFundsContributed}/> <br/>
-                    <label>School Project Got :</label> <input value={this.state.schoolProjectFunds}/> <br/>
-                    <label>Road Project Got :</label> <input value={this.state.roadProjectFunds}/> <br/> */}
-
-                        
-
-                        {/* 
-                        <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">
-                                Contract Details
-                            </span>
-                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
-                                value= {this.state.contractDetailsJson} onChange={this.getInputValue2}
-                            />
-                        </div>
-
-                        <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">
-                                Contract Details
-                            </span>
-                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
-                                value= {this.state.contractDetailsJson} onChange={this.getInputValue2}
-                            />
-                        </div>
-
-                        <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">
-                                Contract Details
-                            </span>
-                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
-                                value= {this.state.contractDetailsJson} onChange={this.getInputValue2}
-                            />
-                        </div>
-
-                        <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">
-                                Contract Details
-                            </span>
-                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
-                                value= {this.state.contractDetailsJson} onChange={this.getInputValue2}
-                            />
-                        </div> */}
                     </div>
 
                 </div>

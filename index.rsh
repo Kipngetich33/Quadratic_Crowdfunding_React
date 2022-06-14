@@ -16,7 +16,8 @@ const User = {
         totalFunds:UInt,
     })],Null),
     logFromBackend3:Fun([Tuple(UInt,UInt,UInt)],Null),
-    informUserOfFundsShare:Fun([UInt,UInt,UInt],Null)
+    informUserOfFundsShare:Fun([UInt,UInt,UInt],Null),
+    seeOutcome: Fun([UInt], Null),
 }
 
 const projectVotes = {
@@ -29,10 +30,13 @@ const userVotes = {
     Prince:Null
 }
 
-export const main = Reach.App(()=> {
+const returnResults = (funds) => {
+    return funds
+}
 
+export const main = Reach.App(()=> {
     //ToDo: Pull partipants from mongo database
-    //but for now just create four participants Genesis, Prince,Jazz,Kip
+    //but for now just create four participants School, Road,Prince,Jazz,Kip
 
     //create Participant interfaces for the two projects if.e Road and school,these two 
     //accounts are where the funds will be transfered
@@ -62,12 +66,16 @@ export const main = Reach.App(()=> {
     //Kip's step
     Kip.only(()=> {
         const donationAmtKip = declassify(interact.donationAmt)
-        // interact.logFromBackend(donationAmtKip)
 
     })
     Kip.publish(donationAmtKip)
         .pay(donationAmtKip)
     commit();
+
+
+    // each([Kip,Prince,Jazz],() => {
+    //     interact.logFromBackend(755)
+    // })
 
 
     // School.only(() => {
@@ -118,12 +126,7 @@ export const main = Reach.App(()=> {
     invariant( balance() == (donationAmtKip + donationAmtPrince + donationAmtJazz) )
     while(contractDetails.timeOut < 1){
         commit()
-        //Log information to all participants
-        each([Kip,Prince,Jazz],() => {
-            interact.logFromBackend(1)
-            // interact.log()
-        })
-       
+    
         //this is a kip only step
         Kip.only(() => {
             const usersVoteKip = declassify(interact.projectVote)
@@ -171,16 +174,6 @@ export const main = Reach.App(()=> {
         Kip.publish()
             // .timeout(relativeTime(5), () => closeTo(Kip,() => {}))
 
-
-        //Log information to all participants
-        each([Kip,Prince,Jazz],() => {
-            interact.logFromBackend(21)
-            interact.logFromBackend(usersVoteKip)
-            interact.logFromBackend(usersVotePrince)
-            interact.logFromBackend(usersVoteJazz)
-
-            // interact.log()
-        })
         // now update the contract details
         contractDetails = {
             ...contractDetails,
@@ -253,24 +246,12 @@ export const main = Reach.App(()=> {
     while(votingIndex.donationIndex > 0){
         commit();
 
-        //Log information to all participants
-        each([Kip,Prince,Jazz],() => {
-            interact.logFromBackend(4)
-            // interact.log()
-        })
-
         const currentSchoolDonationAmount = contractDetails.projects.school.amounts[votingIndex.donationIndex - 1]
         const currentRoadDonationAmount = contractDetails.projects.road.amounts[votingIndex.donationIndex - 1]
         Kip.only(() => {
             
         })
         Kip.publish()
-
-        //Log information to all participants
-        each([Kip,Prince,Jazz],() => {
-            interact.logFromBackend(5)
-            // interact.log()
-        })
 
         //update the votingIndex details
         votingIndex = {
@@ -287,33 +268,26 @@ export const main = Reach.App(()=> {
     const schoolVotes = votingIndex.schoolVotingPower
     const roadVotes = votingIndex.roadVotingPower
 
-     //Log information to all participants
-     each([Kip,Prince,Jazz],() => {
-        interact.logFromBackend(97)
-        interact.logFromBackend(schoolVotes)
-        interact.logFromBackend(roadVotes)
-    })
-
-
     //get project funds
     const schoolProjectFunds = projectFundShare(schoolVotes,totalVotingPower)
     const roadProjectFunds = projectFundShare(roadVotes,totalVotingPower)
 
-    each([Kip,Prince,Jazz],() => {
-        const totalFunds = balance();
-        interact.informUserOfFundsShare(totalFunds,schoolProjectFunds,roadProjectFunds)
-    });
     //end of calculate project voting power ************************************************************************************************************************
 
     //there will be a very small balance remaining use it to remunarate the person who deployed the
     //contract
     const remainingFunds = balance() - (roadProjectFunds + schoolProjectFunds)
+    //now transfer the funds respectively
+    // transfer(schoolProjectFunds).to(School)
+    // transfer(roadProjectFunds).to(Road)
+    // transfer(remainingFunds).to(Kip)
 
-    // - (schoolProjectFunds + roadProjectFunds)
-    // now transfer the amount to the correct project
-    // transfer(donationAmtJazz + donationAmtKip + donationAmtPrince).to(Kip)
-    // transfer(roadProjectFunds).to(Jazz)
-    // transfer(schoolProjectFunds).to(Prince)
+    //inform users of funds share ratio
+    each([Kip,Prince,Jazz],() => {
+        const totalFunds = balance();
+        // interact.informUserOfFundsShare(totalFunds,schoolProjectFunds,roadProjectFunds)
+        interact.seeOutcome(totalFunds)
+    });
 
     transfer(schoolProjectFunds).to(Prince)
     transfer(roadProjectFunds).to(Jazz)

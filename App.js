@@ -8,7 +8,6 @@ import Resume from './src/components/Resume'
 import FunctionEvent from './src/components/FunctionEvent'
 import Main from './src/components/Main'
 
-
 //set original props
 let genesisProps = {
   test_variable:"Test",
