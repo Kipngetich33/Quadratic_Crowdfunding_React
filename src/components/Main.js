@@ -281,7 +281,8 @@ class ClassEvent extends Component {
     render () {
         return (
             <div>
-                <h4 >{this.state.instructionHeader}</h4>
+                <br/>
+                <h3 >{this.state.instructionHeader}</h3>
                 {/*step 1: give username/project name */}
                 <input style={{display:this.state.startOrAttachToContract}} id="userOrProjectName" type="text" placeholder="Enter User or Project Name" onChange={this.getInputValue}/><br/><br/>
                 <button style={{display:this.state.startOrAttachToContract}} onClick={this.startOrAttachToContract} type="button" className="btn btn-primary">
@@ -292,7 +293,8 @@ class ClassEvent extends Component {
                 <div  style={{display:this.state.showAccountDefinition}}>
                     <button id="createAccount" onClick={this.createNewAccount} type="button" className="btn btn-primary">
                         Create New Account
-                    </button> 
+                    </button>
+                    &nbsp;&nbsp;
                     <button onClick={this.enterExistingAccount} type="button" className="btn btn-primary">
                         Enter Existing Account
                     </button> 
@@ -308,6 +310,7 @@ class ClassEvent extends Component {
                     <button onClick={this.initiateNewContract} type="button" className="btn btn-primary">
                         Initiate
                     </button>
+                    &nbsp;&nbsp;
                     <button onClick={this.attachToExistingContract} type="button" className="btn btn-primary">
                         Attach
                     </button>
@@ -333,11 +336,11 @@ class ClassEvent extends Component {
 
                 {/* step 6 project voting section */}
                 <div  style={{display:this.state.projectVotingSection}}>
-                    <label>1. School Project :</label>
+                    <label><h3>1. School Project &nbsp;&nbsp;</h3></label>
                     <button id="createAccount" onClick={this.voteForSchool} type="button" className="btn btn-primary">
                         Vote
                     </button> <br/><br/>
-                    <label>2. Road Project :</label>
+                    <label><h3>2. Road Project &nbsp;&nbsp;</h3></label>
                     <button id="createAccount" onClick={this.voteForRoad} type="button" className="btn btn-primary">
                         Vote
                     </button>
@@ -345,18 +348,151 @@ class ClassEvent extends Component {
                
                 {/* Funds distribution section and account balance*/}
                 <div style={{display:this.state.fundsDistributionAndBalance}}>
-                    <h4>Your Details</h4>
-                    <label>Contract Details ID:</label> <input value= {this.state.contractDetailsJson} onChange={this.getInputValue2}/> <br/>
-                    <label>You Contributed :</label> <input value= {this.state.donationAmount} onChange={this.getInputValueContribution}/> <br/>
-                    <label>You Account Balance is :</label> <input value= {this.state.accountBalance} onChange={this.getAccountBalance}/> <br/>
-                    <label>You Voted For :</label> <input value={this.state.projectVotedFor} onChange={this.getInputprojectVotedFor}/> <br/>
-                    {/* <h4>Project Funds Share Ration :</h4> <br/>
+                    <div id="detailsDiv">
+                        <h4>Your Details</h4>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">
+                                Contract Details
+                            </span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                                value= {this.state.contractDetailsJson} onChange={this.getInputValue2}
+                            />
+                        </div>
+
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">
+                                You Contributed
+                            </span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                                value= {this.state.donationAmount} onChange={this.getInputValueContribution}
+                            />
+                        </div>
+
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">
+                                You Account Balance is
+                            </span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                                value= {this.state.accountBalance} onChange={this.getAccountBalance}
+                            />
+                        </div>
+
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">
+                                You Voted For
+                            </span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                                value={this.state.projectVotedFor} onChange={this.getInputprojectVotedFor}
+                            />
+                        </div>
+
+                        <h4>Quadratic Share Ratio</h4>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">
+                                School Share Ratio
+                            </span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                                value={this.state.schoolProjectShareRation} 
+                                onChange={this.getInputValue2
+                                }
+                            />
+                        </div>
+
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">
+                                Road Share Ratio
+                            </span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                                value={this.state.schoolProjectShareRation} 
+                                onChange={this.getInputValue2
+                                }
+                            />
+                        </div>
+
+                        <h4>Funds Share</h4>
+
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">
+                                Total Funds Contributed
+                            </span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                                value={this.state.schoolProjectShareRation} 
+                                onChange={this.getInputValue2
+                                }
+                            />
+                        </div>
+
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">
+                                School Project Funds
+                            </span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                                value={this.state.schoolProjectShareRation} 
+                                onChange={this.getInputValue2
+                                }
+                            />
+                        </div>
+
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">
+                                Road Project Funds
+                            </span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                                value={this.state.schoolProjectShareRation} 
+                                onChange={this.getInputValue2
+                                }
+                            />
+                        </div>
+
+                        {/* 
                     <label>School Project</label><input value={this.state.schoolProjectShareRation}/> <br/>
                     <label>Road Project</label><input value={this.state.roadProjectShareRation}/> <br/>
                     <label>Total Funds Contributed : </label> <input value={this.state.totalFundsContributed}/> <br/>
                     <label>School Project Got :</label> <input value={this.state.schoolProjectFunds}/> <br/>
                     <label>Road Project Got :</label> <input value={this.state.roadProjectFunds}/> <br/> */}
+
+                        
+
+                        {/* 
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">
+                                Contract Details
+                            </span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                                value= {this.state.contractDetailsJson} onChange={this.getInputValue2}
+                            />
+                        </div>
+
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">
+                                Contract Details
+                            </span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                                value= {this.state.contractDetailsJson} onChange={this.getInputValue2}
+                            />
+                        </div>
+
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">
+                                Contract Details
+                            </span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                                value= {this.state.contractDetailsJson} onChange={this.getInputValue2}
+                            />
+                        </div>
+
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">
+                                Contract Details
+                            </span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                                value= {this.state.contractDetailsJson} onChange={this.getInputValue2}
+                            />
+                        </div> */}
+                    </div>
+
                 </div>
+                
             </div>
         )
     }

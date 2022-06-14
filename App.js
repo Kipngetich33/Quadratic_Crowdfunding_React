@@ -33,9 +33,19 @@ let genesisProps = {
 function App() {
   return (
     <div className="App">
-      <h3>Quadratic Crowd Funding</h3>
-      <hr/>
-      <Main message = "Test Button" myProps = { genesisProps }/>
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-start">
+        test
+    </div>
+      <a class="navbar-brand center" href="#">
+      <br/>
+      <h1 >Quadratic Crowdfunding</h1> 
+      <br/>
+      </a>
+  </div>
+</nav>
+      <Main myProps = { genesisProps }/>
     </div>
   );
 }
