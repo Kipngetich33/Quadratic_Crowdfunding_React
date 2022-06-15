@@ -11,35 +11,9 @@ const userParts = {
     'Prince':backend.Prince,
     'Jazz':backend.Jazz,
     'Kip':backend.Kip,
-    // 'School':backend.School,
-    // 'Road':backend.Road
+    'School':backend.School, 
+    'Road':backend.Road
 }
-
-
-
-interact.informUserOfFundsShare = async (totalFunds,schoolProjectFunds,roadProjectFunds) => {
-    console.log("*********************************************Results***********************************************************");
-    console.log(totalFunds);
-    console.log(schoolProjectFunds);
-    console.log(roadProjectFunds);
-
-    // this.setState({totalFundsContributed:totalFunds})
-    // this.setState({schoolProjectFunds:schoolProjectFunds})
-    // this.setState({roadProjectShareRation:roadProjectFunds})
-
-    // console.log(ClassEvent.test("Test"))
-}
-
-// const myFunction = async () => {
-//     console.log("running")
-//     interact.logFromBackend = async (valueFromBackend) => {
-//         console.log(`The value of backend ${valueFromBackend}`);
-//     }
-// }
-
-// interact.seeOutcome = async (totalFunds) {
-//     return totalFunds
-// }
 
 class ClassEvent extends Component {
     //create state for Component
@@ -50,6 +24,7 @@ class ClassEvent extends Component {
             userOrProjectName:null,
             contractId:null,
             donationAmount:0,
+            initialAccountBalance:0,
             accountBalance:0,
             projectVotedFor:'',
             schoolProjectShareRation:0,
@@ -79,15 +54,15 @@ class ClassEvent extends Component {
             projectVoteValue:0,
             interact:interact
         };
-        this.test = (x) => {
-            console.log(`The function is ${x}`)
-        }
     }
 
 
     // helper functions section
     currencyFormater = (x) => stdlib.formatCurrency(x,10) // format to 4 decimal places
     getBalance = async (userAccount) => this.currencyFormater(await stdlib.balanceOf(userAccount))
+    finalBalance = async (userAccount) => {
+        this.setState( {accountBalance:this.currencyFormater(await stdlib.balanceOf(userAccount))} )
+    }
     parseAtomicToStandard = (atomicUnits) => atomicUnits/1000000 // function that converts atomice units to standard
     //function that get the balance of funds payed to the contract
     getBalanceContract = async (contractId) => currencyFormater(await stdlib.balanceOf(contractId))
@@ -128,20 +103,19 @@ class ClassEvent extends Component {
 
     }
 
-    testFunction = (x) => {
-        console.log("test function")
-    }
-
     getInputValue = (event)=>{
         // get value enter by user here
         const userValue = event.target.value;
         this.state.userOrProjectName = userValue
     };
 
+
     getInputValue2 = (event)=>{
         // get value enter by user here
         this.state.contractDetailsJson = event.target.value;
     };
+
+
 
     getInputValue3 = (event)=>{
         // get value enter by user here
@@ -149,12 +123,47 @@ class ClassEvent extends Component {
         this.state.userAccountaddr = userValue
     };
 
+    schoolShareRatioOnChange = (event) => {
+        // get value enter by user here
+        const userValue = event.target.value;
+        this.state.schoolProjectShareRation = userValue
+        
+    }
+
+    roadShareRatioOnChange = (event) => {
+        // get value enter by user here
+        const userValue = event.target.value;
+        this.state.roadProjectShareRation = userValue
+        
+    }
+
     totalFundsContributedOnchange = (event) => {
         // get value enter by user here
         const userValue = event.target.value;
         this.state.totalFundsContributed = userValue
         
     }
+
+    schoolFundsOnchange = (event) => {
+        // get value enter by user here
+        const userValue = event.target.value;
+        this.state.schoolProjectFunds = userValue
+        
+    }
+
+    roadFundsOnchange = (event) => {
+        // get value enter by user here
+        const userValue = event.target.value;
+        this.state.roadProjectFunds = userValue
+        
+    }
+
+    // accountBalanceOnChange = (event) => {
+    //     // get value enter by user here
+    //     const userValue = event.target.value;
+    //     this.state.accountBalance = userValue
+    // }
+
 
     //function that binds the contribution amount with donationAmount in state
     getInputValueContribution = (event) =>{
@@ -172,12 +181,26 @@ class ClassEvent extends Component {
         this.state.accountBalance = userValue
     }
 
+    getInitialAccountBalance = (event) => {
+        const userValue = event.target.value;
+        this.state.initialAccountBalance = userValue
+    }
+
     createNewAccount = async () => {
-        let userAccount = await stdlib.newTestAccount(stdlib.parseCurrency(1000))
+        let userAccount = null
+        if(this.state.userRole == "Contributor"){
+            userAccount = await stdlib.newTestAccount(stdlib.parseCurrency(1000))
+        }else{
+            userAccount = await stdlib.newTestAccount(stdlib.parseCurrency(1))
+        }
+
         this.setState({userAccount:userAccount})
         this.setState({userAccountaddr:userAccount.networkAccount.addr})    
         //now show the confirmation section
         this.setState({confirmAccount:true})
+        //get user account balance
+        let initialAccBal = this.parseAtomicToStandard(await userAccount.balanceOf())
+        this.setState({initialAccountBalance:initialAccBal})
     }
 
     enterExistingAccount = () => {
@@ -214,20 +237,36 @@ class ClassEvent extends Component {
         //check the contract details is defined in the state
         if(this.state.contractDetailsJson){
             if(this.state.contractDetailsJson == "Pending"){
-                this.setState({createAttachContractSection:'none'})
-                this.setState({contributionSection:true})
-                this.setState({instructionHeader:"How much would you want to contribute?"})
+                //check if user is project owner or contributor
+                if(this.state.userRole == "Contributor"){
+                    this.setState({createAttachContractSection:'none'})
+                    this.setState({contributionSection:true})
+                    this.setState({instructionHeader:"How much would you want to contribute?"})
+                }else{
+                    this.setState({createAttachContractSection:'none'})
+                    this.setState({fundsDistributionAndBalance:true})
+                    this.setState({instructionHeader:"You are participating as a Project owner"})
+                    //call the transaction comletion function
+                    this.completeTransaction(3)
+                }
             }else{
                 //this user wants to attach to an existing contract
                 ctc = this.state.userAccount.contract(backend,this.state.contractDetailsJson)
-                this.setState({createAttachContractSection:'none'})
-                this.setState({contributionSection:true})
-                this.setState({instructionHeader:"How much would you want to contribute?"})
+                if(this.state.userRole == "Contributor"){
+                    this.setState({createAttachContractSection:'none'})
+                    this.setState({contributionSection:true})
+                    this.setState({instructionHeader:"How much would you want to contribute?"})
+                }else{
+                    this.setState({createAttachContractSection:'none'})
+                    this.setState({fundsDistributionAndBalance:true})
+                    this.setState({instructionHeader:"You are participating as a Project owner"})
+                    //call the transaction comletion function
+                    this.completeTransaction(3)
+                }
             }
         }else{
             alert("The contract detail is undefined")
         }
-        
     }
 
     confirmContribution = () => {
@@ -236,7 +275,6 @@ class ClassEvent extends Component {
             this.setState({contributionSection:'none'})
             this.setState({projectVotingSection:true})
             this.setState({instructionHeader:"Vote your favourite project"})
-
         }else{
             alert("Please enter your contibution amount")
         }
@@ -263,16 +301,32 @@ class ClassEvent extends Component {
     }
 
     completeTransaction = (projectVoteValue) => {
-        interact.donationAmt = this.state.donationAmount
-        interact.projectVote = projectVoteValue
-        interact.seeOutcome = (outcome) => {
-            console.log("finally doine")
-            let sch = parseInt(outcome._hex, 16)
-            console.log(sch)
-            this.setState({totalFundsContributed:sch})
+        if(projectVoteValue == 1 || projectVoteValue == 2){
+            interact.donationAmt = this.state.donationAmount
+            interact.projectVote = projectVoteValue
         }
-        let userBackend = userParts[this.state.userOrProjectName]
 
+        interact.informUserOfFundsShare = (totalVotingPower,schoolVotes,roadVotes,totalFunds,schoolProjectFunds,roadProjectFunds) => {
+
+            let totalRatio = totalVotingPower
+            let schoolRatio = schoolVotes
+            let roadRatio = roadVotes
+            let totalFundContributed = totalFunds
+            let fundsDistributedToSchool = schoolProjectFunds
+            let fundsDistributedToRoad = roadProjectFunds
+            // this.setState( { :parseInt(totalRatio._hex, 16))})
+
+            this.setState({ schoolProjectShareRation : parseInt(schoolRatio._hex, 16) })
+            this.setState({ roadProjectShareRation : parseInt(roadRatio._hex, 16) })
+            this.setState({ totalFundsContributed : parseInt(totalFundContributed._hex, 16) })
+            this.setState({ schoolProjectFunds : parseInt(fundsDistributedToSchool._hex, 16) })
+            this.setState({ roadProjectFunds : parseInt(fundsDistributedToRoad._hex, 16) })
+
+            this.finalBalance(this.state.userAccount)
+            
+        }
+
+        let userBackend = userParts[this.state.userOrProjectName]
         //pass contract and interact to current user's backend
         userBackend(ctc, interact)
 
@@ -282,21 +336,10 @@ class ClassEvent extends Component {
             ctc.getInfo().then((contractDetails) => {
                 // this.setState({contractDetailsJson:JSON.stringify(contractDetails)});
                 this.setState({contractDetailsJson:contractDetails._hex});
-
-                // interact.getBalanceContract().then((cBalcne) => {
-                //     console.log("contract balance")
-                //     console.log(cBalcne)
-                // })
-
-                // //get user account balance
-                // let accountBalance = this.getBalance(this.state.userAccount).then((balance) => {
-                //     // this.setState({accountBalance:balance})
-                // })
             })
         }else{
            //this is the attacher section
         }
-
     }
 
     render () {
@@ -391,10 +434,10 @@ class ClassEvent extends Component {
 
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text" id="inputGroup-sizing-sm">
-                                You Account Balance is
+                                Initial Account Balance
                             </span>
                             <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
-                                value= {this.state.accountBalance} onChange={this.getAccountBalance}
+                                value= {this.state.initialAccountBalance} onChange={this.getInitialAccountBalance}
                             />
                         </div>
 
@@ -407,6 +450,15 @@ class ClassEvent extends Component {
                             />
                         </div>
 
+                        {/* <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">
+                                Current Account Balance
+                            </span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                                value= {this.state.accountBalance} onChange={this.accountBalanceOnChange}
+                            />
+                        </div> */}
+
                         <h4>Quadratic Share Ratio</h4>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text" id="inputGroup-sizing-sm">
@@ -414,8 +466,7 @@ class ClassEvent extends Component {
                             </span>
                             <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
                                 value={this.state.schoolProjectShareRation} 
-                                onChange={this.getInputValue2
-                                }
+                                onChange={this.schoolShareRatioOnChange}
                             />
                         </div>
 
@@ -424,9 +475,7 @@ class ClassEvent extends Component {
                                 Road Share Ratio
                             </span>
                             <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
-                                value={this.state.schoolProjectShareRation} 
-                                onChange={this.getInputValue2
-                                }
+                                value={this.state.roadProjectShareRation} onChange={this.roadShareRatioOnChange}
                             />
                         </div>
 
@@ -437,9 +486,7 @@ class ClassEvent extends Component {
                                 Total Funds Contributed
                             </span>
                             <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
-                                value={this.state.totalFundsContributed} 
-
-                                onChange={this.totalFundsContributedOnchange}
+                                value={this.state.totalFundsContributed} onChange={this.totalFundsContributedOnchange}
                             />
                         </div>
 
@@ -448,8 +495,7 @@ class ClassEvent extends Component {
                                 School Project Funds
                             </span>
                             <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
-                                value={this.state.schoolProjectFunds} 
-                                onChange={this.getInputValue2}
+                                value={this.state.schoolProjectFunds} onChange={this.schoolFundsOnChange}
                             />
                         </div>
 
@@ -458,8 +504,7 @@ class ClassEvent extends Component {
                                 Road Project Funds
                             </span>
                             <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
-                                value={this.state.roadProjectFunds} 
-                                onChange={this.getInputValue2}
+                                value={this.state.roadProjectFunds} onChange={this.roadFundsOnChange}
                             />
                         </div>
 
