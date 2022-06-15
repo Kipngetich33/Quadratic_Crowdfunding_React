@@ -187,8 +187,8 @@ const projectsDetails = {
         'Prince':backend.Prince,
         'Jazz':backend.Jazz,
         'Kip':backend.Kip,
-        'School':backend.School,
-        'Road':backend.Road
+        // 'School':backend.School,
+        // 'Road':backend.Road
     }
 
     // *************************************************************************************************************************

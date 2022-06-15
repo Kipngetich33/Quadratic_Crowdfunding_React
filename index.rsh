@@ -8,15 +8,8 @@ const User = {
     showTotalFunds: Fun([UInt],Null),
     projectVote:UInt,
     informTimeOut:Fun([],Null),
-    logFromBackend:Fun([UInt],Null),
-    logFromBackend2:Fun([Object({
-        road: UInt, 
-        school: UInt, 
-        status: Bool,
-        totalFunds:UInt,
-    })],Null),
     logFromBackend3:Fun([Tuple(UInt,UInt,UInt)],Null),
-    informUserOfFundsShare:Fun([UInt,UInt,UInt],Null)
+    informUserOfFundsShare:Fun([UInt,UInt,UInt,UInt,UInt,UInt],Null),
 }
 
 const projectVotes = {
@@ -29,10 +22,13 @@ const userVotes = {
     Prince:Null
 }
 
-export const main = Reach.App(()=> {
+const returnResults = (funds) => {
+    return funds
+}
 
+export const main = Reach.App(()=> {
     //ToDo: Pull partipants from mongo database
-    //but for now just create four participants Genesis, Prince,Jazz,Kip
+    //but for now just create four participants School, Road,Prince,Jazz,Kip
 
     //create Participant interfaces for the two projects if.e Road and school,these two 
     //accounts are where the funds will be transfered
@@ -62,12 +58,11 @@ export const main = Reach.App(()=> {
     //Kip's step
     Kip.only(()=> {
         const donationAmtKip = declassify(interact.donationAmt)
+
     })
     Kip.publish(donationAmtKip)
         .pay(donationAmtKip)
-        // .timeout(relativeTime(5), () => closeTo(Kip,() => {}))
     commit();
-
 
     School.only(() => {
     })
@@ -88,18 +83,6 @@ export const main = Reach.App(()=> {
         .pay(donationAmtPrince)
         // .timeout(relativeTime(5), () => closeTo(Prince,() => {}))
     commit();
-
-    //add publish for the project Participant so that they are bound to an adresss and can recieve funds
-    // School.only(() => {
-
-    // })
-    // School.publish()
-    // commit();
-    // Road.only(() => {
-        
-    // })
-    // Road.publish()
-    // commit();
 
     //Jazz's step
     Jazz.only(()=> {
@@ -129,12 +112,7 @@ export const main = Reach.App(()=> {
     invariant( balance() == (donationAmtKip + donationAmtPrince + donationAmtJazz) )
     while(contractDetails.timeOut < 1){
         commit()
-         //Log information to all participants
-        each([Kip,Prince,Jazz],() => {
-            // interact.logFromBackend(contractDetails.timeOut)
-            // interact.log()
-        })
-       
+    
         //this is a kip only step
         Kip.only(() => {
             const usersVoteKip = declassify(interact.projectVote)
@@ -145,7 +123,7 @@ export const main = Reach.App(()=> {
             const roadAmountKip =  usersVoteKip == 2 ? donationAmtKip : 0
         });
         //publish kips votes
-        Kip.publish(school_votes_kip,road_votes_kip,schoolAmountKip,roadAmountKip)
+        Kip.publish(usersVoteKip,school_votes_kip,road_votes_kip,schoolAmountKip,roadAmountKip)
             // .timeout(relativeTime(5), () => closeTo(Kip,() => {}))
         commit();
 
@@ -158,7 +136,7 @@ export const main = Reach.App(()=> {
             const schoolAmountPrince =  usersVotePrince == 1 ? donationAmtPrince : 0 
             const roadAmountPrince =  usersVotePrince == 2 ? donationAmtPrince : 0
         });
-        Prince.publish(school_votes_prince,road_votes_prince,schoolAmountPrince,roadAmountPrince)
+        Prince.publish(usersVotePrince,school_votes_prince,road_votes_prince,schoolAmountPrince,roadAmountPrince)
             // .timeout(relativeTime(5), () => closeTo(Prince,() => {}))
         commit();
 
@@ -171,7 +149,7 @@ export const main = Reach.App(()=> {
             const schoolAmountJazz =  usersVoteJazz == 1 ? donationAmtJazz : 0 
             const roadAmountJazz =  usersVoteJazz == 2 ? donationAmtJazz : 0
         });
-        Jazz.publish(school_votes_jazz,road_votes_jazz,schoolAmountJazz,roadAmountJazz)
+        Jazz.publish(usersVoteJazz,school_votes_jazz,road_votes_jazz,schoolAmountJazz,roadAmountJazz)
             // .timeout(relativeTime(5), () => closeTo(Jazz,() => {}))
         commit();
 
@@ -253,6 +231,7 @@ export const main = Reach.App(()=> {
     invariant(votingIndex.donationIndex <= 3 && balance() == (donationAmtKip + donationAmtPrince + donationAmtJazz))
     while(votingIndex.donationIndex > 0){
         commit();
+
         const currentSchoolDonationAmount = contractDetails.projects.school.amounts[votingIndex.donationIndex - 1]
         const currentRoadDonationAmount = contractDetails.projects.road.amounts[votingIndex.donationIndex - 1]
         Kip.only(() => {
@@ -274,27 +253,30 @@ export const main = Reach.App(()=> {
     //get voting powers as costants
     const schoolVotes = votingIndex.schoolVotingPower
     const roadVotes = votingIndex.roadVotingPower
+
     //get project funds
     const schoolProjectFunds = projectFundShare(schoolVotes,totalVotingPower)
     const roadProjectFunds = projectFundShare(roadVotes,totalVotingPower)
-
-    // const testFunctionData = testFunction()
-    each([Kip,Prince,Jazz],() => {
-        const totalFunds = balance();
-        interact.informUserOfFundsShare(totalFunds,schoolProjectFunds,roadProjectFunds)
-    });
 
     //end of calculate project voting power ************************************************************************************************************************
 
     //there will be a very small balance remaining use it to remunarate the person who deployed the
     //contract
-    const remainingFunds = balance() - (schoolProjectFunds + roadProjectFunds)
-    //now transfer the amount to the correct project
+    const remainingFunds = balance() - (roadProjectFunds + schoolProjectFunds)
+
+    //inform users of funds share ratio
+    each([Kip,Prince,Jazz,School,Road],() => {
+        const totalFunds = balance();
+        interact.informUserOfFundsShare(totalVotingPower,schoolVotes,roadVotes,totalFunds,schoolProjectFunds,roadProjectFunds)
+    });
+
+
     transfer(schoolProjectFunds).to(School)
     transfer(roadProjectFunds).to(Road)
     transfer(remainingFunds).to(Kip)
 
     //commit all the changes above
     commit()
+
 });
 
