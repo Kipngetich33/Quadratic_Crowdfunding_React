@@ -98,7 +98,7 @@ class ClassEvent extends Component {
             alert("Please Enter User or Project Name in order to continue")
         }
     }
-
+    
     handleClick = () => {
 
     }
